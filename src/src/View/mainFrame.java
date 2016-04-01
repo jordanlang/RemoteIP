@@ -2,65 +2,77 @@ package src.View;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
- * Created by jordan on 22/03/2016.
+ * Created by jordan on 30/03/2016.
  */
 public class mainFrame extends JFrame {
     public mainFrame() {
-        JMenuBar menuBar;
-        JMenu menuSession;
-        JMenu menuGestion;
-        JMenuItem menuItem1;
-        JMenuItem menuItem2;
-        JMenuItem menuItem3;
-        ButtonGroup gestion;
-        JRadioButtonMenuItem radioUnique;
-        JRadioButtonMenuItem radioMultiple;
-        FlowLayout mainLayout;
-        JPanel window;
-        JPanel activeWindow;
+        JPanel window = new JPanel();
+        JButton btn_admin = new JButton("Administrer un poste distant");
+        JButton btn_client = new JButton("Etre administré");
+        btn_admin.addActionListener(this::btn_admin_actionPerformed);
+        btn_client.addActionListener(this::btn_client_actionPerformed);
 
-        //Menu
-        menuBar = new JMenuBar();
-        menuSession = new JMenu("Session");
-        menuGestion = new JMenu("Gestion");
-        menuItem1 = new JMenuItem("Nouvelle session");
-        menuItem2 = new JMenuItem("Déconnexion");
-        menuItem3 = new JMenuItem("Tout déconnecter");
-        gestion = new ButtonGroup();
-        radioUnique = new JRadioButtonMenuItem("Unique");
-        radioMultiple = new JRadioButtonMenuItem("Multiple");
-        gestion.add(radioUnique);
-        gestion.add(radioMultiple);
-        radioUnique.setSelected(true);
+        btn_admin.setMaximumSize(new Dimension(250, 40));
+        btn_client.setPreferredSize(new Dimension(400, 100));
 
-        menuSession.add(menuItem1);
-        menuSession.addSeparator();
-        menuSession.add(menuItem2);
-        menuSession.add(menuItem3);
-        menuGestion.add(radioUnique);
-        menuGestion.add(radioMultiple);
+        GridLayout grid = new GridLayout(3, 1);
+        window.setLayout(grid);
+        window.add(btn_admin);
+        window.add(Box.createRigidArea(new Dimension(0, 10)));
+        window.add(btn_client);
 
-        menuBar.add(menuSession);
-        menuBar.add(menuGestion);
-        this.setJMenuBar(menuBar);
+        this.setLayout(new BorderLayout());
+        this.getContentPane().add(window, BorderLayout.CENTER);
+        this.getContentPane().add(Box.createRigidArea(new Dimension(0, 100)), BorderLayout.NORTH);
+        this.getContentPane().add(Box.createRigidArea(new Dimension(0, 100)), BorderLayout.SOUTH);
+        this.getContentPane().add(Box.createRigidArea(new Dimension(100, 0)), BorderLayout.WEST);
+        this.getContentPane().add(Box.createRigidArea(new Dimension(100, 0)), BorderLayout.EAST);
+    }
 
+    public void btn_client_actionPerformed(ActionEvent e) {
+        Runtime runtime = Runtime.getRuntime();
+        if (System.getProperty("os.name").startsWith("Windows")) { //Sytème Windows
+            try {
+                runtime.exec("start orbd -ORBInitialPort 46293");
+            } catch (Exception exp) {
+                System.err.println(exp.getMessage());
+            }
+        } else { //Tous les autres systèmes
+            try {
+                runtime.exec("orbd -ORBInitialPort 46293&");
+            } catch (Exception exp) {
+                System.err.println(exp.getMessage());
+            }
+        }
 
-        //Fenetre
-        ImageIcon img = new ImageIcon("./cp.png");
-        JLabel image = new JLabel(img);
-        image.setPreferredSize(new Dimension(img.getIconWidth(), img.getIconHeight()));
+        mainFrameClient clientFrame = new mainFrameClient();
+        clientFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        clientFrame.setTitle("Paramètres");
+        clientFrame.setLocation(300, 200);
+        clientFrame.pack();
+        clientFrame.setVisible(true);
+        this.setVisible(false);
+    }
 
-        window = new JPanel();
-        activeWindow = new JPanel();
-        mainLayout = new FlowLayout();
-        window.setLayout(mainLayout);
-        activeWindow.add(image);
-        window.add(activeWindow);
-        window.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+    public void btn_admin_actionPerformed(ActionEvent e) {
+        mainFrameServer serverFrame = new mainFrameServer();
 
-        setContentPane(window);
-        setLocationRelativeTo(getOwner());
+        Runtime runtime = Runtime.getRuntime();
+        String cmd = "java ViewerClient -ORBInitialPort 46293 -ORBInitialHost " + serverFrame.getIdentifiant();
+        try {
+            runtime.exec(cmd);
+        } catch (Exception exp) {
+            System.err.println(exp.getMessage());
+        }
+
+        serverFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        serverFrame.setTitle("Administration");
+        serverFrame.setLocation(300, 200);
+        serverFrame.pack();
+        serverFrame.setVisible(true);
+        this.setVisible(false);
     }
 }

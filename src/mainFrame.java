@@ -1,13 +1,26 @@
-package src.View;
+import ViewerApp.Viewer;
+import ViewerApp.ViewerHelper;
+import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import ViewerApp.*;
 
 /**
  * Created by jordan on 30/03/2016.
  */
-public class mainFrame extends JFrame {
+public class mainFrame extends JDialog {
+    private static Viewer viewImpl;
+    private boolean isadmin;
     public mainFrame() {
         JPanel window = new JPanel();
         JButton btn_admin = new JButton("Administrer un poste distant");
@@ -36,43 +49,43 @@ public class mainFrame extends JFrame {
         Runtime runtime = Runtime.getRuntime();
         if (System.getProperty("os.name").startsWith("Windows")) { //Sytème Windows
             try {
-                runtime.exec("start orbd -ORBInitialPort 46293");
+                runtime.exec(new String[]{"cmd /c start orbd","-ORBInitialPort", "46293"});
             } catch (Exception exp) {
                 System.err.println(exp.getMessage());
             }
         } else { //Tous les autres systèmes
             try {
-                runtime.exec("orbd -ORBInitialPort 46293&");
+                runtime.exec(new String[]{"orbd","-ORBInitialPort", "46293"});
+                System.out.println("done");
             } catch (Exception exp) {
                 System.err.println(exp.getMessage());
             }
         }
+        this.isadmin=false;
 
-        mainFrameClient clientFrame = new mainFrameClient();
-        clientFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        clientFrame.setTitle("Paramètres");
-        clientFrame.setLocation(300, 200);
-        clientFrame.pack();
-        clientFrame.setVisible(true);
-        this.setVisible(false);
+        this.dispose();
     }
 
     public void btn_admin_actionPerformed(ActionEvent e) {
-        mainFrameServer serverFrame = new mainFrameServer();
 
+        this.isadmin=true;
+        this.dispose();
+        /*
         Runtime runtime = Runtime.getRuntime();
+
         String cmd = "java ViewerClient -ORBInitialPort 46293 -ORBInitialHost " + serverFrame.getIdentifiant();
         try {
             runtime.exec(cmd);
         } catch (Exception exp) {
             System.err.println(exp.getMessage());
-        }
+        }*/
 
-        serverFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        serverFrame.setTitle("Administration");
-        serverFrame.setLocation(300, 200);
-        serverFrame.pack();
-        serverFrame.setVisible(true);
-        this.setVisible(false);
+    }
+
+    public boolean isadmin()
+    {
+        return this.isadmin;
     }
 }
+
+

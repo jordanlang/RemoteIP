@@ -1,10 +1,19 @@
-package src.View;
+import ViewerApp.ViewerHelper;
+import org.omg.CORBA.ORB;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 /**
  * Created by jordan on 30/03/2016.
@@ -18,6 +27,7 @@ public class serverDialog extends JDialog {
     private Pattern pattern;
     private Matcher matcher;
     private JTextField mdp;
+
 
     public serverDialog() {
         JPanel window = new JPanel();
@@ -52,9 +62,12 @@ public class serverDialog extends JDialog {
         } else {
             this.dispose();
         }
+
     }
 
     public String getId() {
         return mdp.getText();
     }
 }
+
+
